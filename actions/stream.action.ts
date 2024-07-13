@@ -5,10 +5,13 @@ import { StreamClient } from "@stream-io/node-sdk";
 const apiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY;
 const apiSecret = process.env.STREAM_SECRET_KEY;
 
-export const tokenProvider = async () =>{
-    // const user = ...; 
-    const user;
+interface userProps {
+    _id : string,
+    username : string,
+    imageUrl : string,
+}
 
+export const tokenProvider = async (user : userProps ) =>{
 
     if(!user) throw new Error("User is not logged in");
     if(!apiKey) throw new Error("No API KEY");

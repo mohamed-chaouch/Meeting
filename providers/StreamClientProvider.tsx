@@ -3,54 +3,80 @@
 import { tokenProvider } from '@/actions/stream.action';
 import Loader from '@/components/Loader';
 import {
-    // StreamCall,
     StreamVideoClient,
     StreamVideo,
-    // StreamVideoClient,
-    // User,
-  } from '@stream-io/video-react-sdk';
+} from '@stream-io/video-react-sdk';
 import { ReactNode, useEffect, useState } from 'react';
-  
-const apiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY;
-//   const userId = 'user-id';
-//   const token = 'authentication-token';
-//   const user: User = { id: userId };
-  
-//   const client = new StreamVideoClient({ apiKey, user, token });
-//   const call = client.call('default', 'my-first-call');
-//   call.join({ create: true });
-interface userProps {
-    _id : string,
-    username : string,
-    imageUrl : string,
-}
-const StreamVideoProvider = ({children}: { children: ReactNode}) => {
-    const [videoClient, setVideoClient] = useState<StreamVideoClient>();
-    const [user, setUser]=  useState<userProps>();
-    useEffect(()=>{
-        if(!user) return;
-        if(!apiKey) throw new Error("Stream API key Missing")
-        const client = new StreamVideoClient({ 
-            apiKey, 
-            user: {
-                id : user?._id,
-                name: user?.username,
-                image: user?.imageUrl,
-            },
-            tokenProvider: tokenProvider
-        });
+import axios from '../utils/axios';
+import { useParams } from 'next/navigation';
 
-        setVideoClient(client);
-    },[user]);
+const apiKey: string | undefined = process.env.NEXT_PUBLIC_STREAM_API_KEY;
+
+interface UserProps {
+    _id: string;
+    username: string;
+    imageUrl: string;
+}
+
+const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
+    const [videoClient, setVideoClient] = useState<StreamVideoClient | null>(null);
+    const [user, setUser] = useState<UserProps | null>(null);
+    const { id } = useParams();
+    const [isLoading, setIsLoading] = useState(true);
+
+    const token : any = localStorage.getItem('token');
+    const parsedData = JSON.parse(atob(token.split(".")[1]));
+
+
+    useEffect(() => {
+        const handleUser = async () => {
+            try {
+                const res = await axios.get(`get-user/${parsedData._id}`);
+                setUser(res.data.user);
+            } catch (error) {
+                console.error('Error fetching user:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (parsedData._id) {
+            handleUser();
+        }
+    }, [parsedData._id]);
+
+    useEffect(() => {
+        const initializeClient = async () => {
+            if (user && apiKey) {
+                try {
+                    const token = await tokenProvider(user);
+                    const client = new StreamVideoClient({
+                        apiKey: apiKey,
+                        user: {
+                            id: user._id,
+                            name: user.username,
+                            image: user.imageUrl,
+                        },
+                        tokenProvider: () => Promise.resolve(token),
+                    });
+                    setVideoClient(client);
+                } catch (error) {
+                    console.error('Error initializing video client:', error);
+                }
+            }
+        };
+
+        initializeClient();
+    }, [user, apiKey]);
 
     return (
-        !videoClient ?
-            <Loader /> 
-        :
+        videoClient === null ?
+            <Loader />
+            :
             <StreamVideo client={videoClient}>
                 {children}
             </StreamVideo>
     );
-  };
+};
 
-export default StreamVideoProvider
+export default StreamVideoProvider;

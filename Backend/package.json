@@ -5,9 +5,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "predev": "rimraf dist && npx tsc",
-    "dev": "concurrently \"npx tsc -w\" \"nodemon dist/index.js\"",
-    "build": "rimraf dist && npx tsc"
+    "build": "rimraf dist && npx tsc",
+    "postbuild": "cpx ./src/uploads/**/* ./dist/uploads",
+    "predev": "npm run build",
+    "dev": "concurrently \"npx tsc -w\" \"nodemon dist/index.js\""
   },
   "author": "",
   "license": "ISC",
@@ -29,6 +30,7 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/mongoose": "^5.11.97",
+    "cpx": "^1.5.0",
     "ts-node": "^10.9.2"
   }
 }

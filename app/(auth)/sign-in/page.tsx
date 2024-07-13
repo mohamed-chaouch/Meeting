@@ -4,10 +4,20 @@ import { useGoogleLogin } from '@react-oauth/google';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from "../../../utils/axios";
+import Swal from 'sweetalert2';
 
+interface userProps {
+  email: string;
+  password: string;
+}
 const SignIn = () => {
+  const [user, setUser] = useState<userProps | {email : "", password: ""}>({ email : "", password: ""})
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const router = useRouter();
+
+  const handleClickShowPassword = () => setShowPassword(!showPassword);
 
   const login = useGoogleLogin({
     onSuccess: (response: any) => {
@@ -17,6 +27,29 @@ const SignIn = () => {
       console.log('Login Failed');
     },
   });
+
+  const loginUser = () =>{
+    if(user.email !== "" && user.password !== ""){
+      axios.post(`login-user` , user)
+        .then((response: any) =>{
+          localStorage.setItem("token", response.data.token)
+          router.push("/")
+        })
+        .catch((error: any) => {
+          Swal.fire({
+            title: "Warning",
+            text: "Add correct informations",
+            icon: "warning"
+          });
+        });
+    }else{
+      Swal.fire({
+        title: "Warning",
+        text: "Add User Name and Password",
+        icon: "warning"
+      });
+    }
+  }
 
   return (
     <div className="min-h-screen flex justify-center items-center">
@@ -39,15 +72,41 @@ const SignIn = () => {
           <p className="px-2">or</p>
           <hr className="w-[47%]" />
         </div>
-        <div className="mb-4">
-          <p className="text-white text-left">Email Address or Username</p>
+        <div className="mb-2">
+          <p className="text-white text-left">Email Address</p>
           <input
-            type="text"
+            type="email"
             className="w-full p-2 text-black border border-black rounded"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>)=>{
+              setUser({...user, email:e.target.value});
+            }}
           />
         </div>
+        <div className="mb-4">
+          <p className="text-white text-left">Password</p>
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              className="w-full p-2 text-black border border-black rounded"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>)=>{
+                setUser({...user, password:e.target.value});
+              }}
+            />
+            <button
+              onClick={handleClickShowPassword}
+              className="absolute top-1/2 right-2 transform -translate-y-1/2 text-white"
+            >
+              <Image
+                src={`/icons/${showPassword ? 'visible.png' : 'invisible.png'}`}
+                alt="Password icon"
+                width={24}
+                height={24}
+              />
+            </button>
+          </div>
+        </div>
         <div className="mb-4 w-full text-center">
-          <button className="w-full flex items-center justify-center bg-blue-500 text-white p-2 rounded">
+          <button className="w-full flex items-center justify-center bg-blue-500 text-white p-2 rounded" onClick={loginUser}>
             <p className="text-white text-sm">Continue</p>
             <Image src='/icons/arrow-right.png' alt='Arrow Right' width={24} height={24} className="bg-blue-500" />
           </button>
