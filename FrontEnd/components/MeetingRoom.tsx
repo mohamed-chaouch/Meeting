@@ -1,0 +1,94 @@
+"use client";
+
+import { cn } from '@/lib/utils';
+import { CallControls, CallingState, CallParticipantsList, CallStatsButton, PaginatedGridLayout, SpeakerLayout, useCallStateHooks } from '@stream-io/video-react-sdk';
+import React, { useState } from 'react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { LayoutList, Users } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import EndCallButton from './EndCallButton';
+import Loader from './Loader';
+
+type CallLayoutType = "grid" | "speaker-left" | "speaker-right";
+
+const MeetingRoom = () => {
+  const searchParams = useSearchParams();
+  const isPersonalRoom = !!searchParams.get("personal");
+  const [layout, setLayout] = useState<CallLayoutType>("speaker-left");
+  const [showParticipants, setShowParticipants] = useState(false);
+
+  const { useCallCallingState } = useCallStateHooks();
+  const callingState = useCallCallingState();
+
+  if(callingState !== CallingState.JOINED) return <Loader />
+
+  const CallLayout = () => {
+    switch (layout) {
+      case "grid":
+        return <PaginatedGridLayout />;
+      case "speaker-right":
+        return <SpeakerLayout participantsBarPosition={"left"} />;
+      default:
+        return <SpeakerLayout participantsBarPosition={"right"} />;
+    }
+  };
+
+  return (
+    <section className="relative h-screen w-full overflow-hidden pt-4 text-white">
+      <div className="relative flex size-full items-center justify-center">
+        <div className="flex size-full max-w-[1000px] items-center">
+          <CallLayout />
+        </div>
+        <div className={cn('h-[calc(100vh-86px)] ml-2', {
+          'hidden': !showParticipants,
+          'show-block': showParticipants,
+        })}>
+          <CallParticipantsList onClose={() => setShowParticipants(false)} />
+        </div>
+        <div className="fixed bottom-0 flex w-full items-center justify-center gap-3 flex-wrap">
+          <CallControls />
+
+          <DropdownMenu>
+            <div className="flex items-center">
+              <DropdownMenuTrigger className='bg-[#4e6b89] bg-opacity-[0.1] p-2 rounded-[50%] hover:bg-[#959ba1] hover:bg-opacity-[0.2]'>
+                <LayoutList size={20} />
+              </DropdownMenuTrigger>
+            </div>
+            <DropdownMenuContent className="bg-dark-1 border-dark-1 text-white">
+              {
+                ['grid', "speaker-left", "speaker-right"].map((item, index)=>{
+                  return (
+                    <div key={index}>
+                      <DropdownMenuItem className="cursor-pointer" onClick={() => {setLayout(item as CallLayoutType)}}>
+                        {item}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator className="bg-dark-2" />
+                    </div>
+                  )
+                 })
+              }
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <CallStatsButton />
+          <button onClick={()=>{ setShowParticipants((prev)=>!prev)}}>
+              <div className="cursor-pointer rounded-2xl bg-[#4e6b89] bg-opacity-[0.1] p-2 hover:bg-[#959ba1] hover:bg-opacity-[0.2]">
+                <Users size={20} />
+              </div>
+          </button>
+          {
+            !isPersonalRoom &&
+            <EndCallButton />
+          }
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default MeetingRoom;
