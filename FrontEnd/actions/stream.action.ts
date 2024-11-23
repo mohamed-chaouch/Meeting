@@ -17,13 +17,13 @@ export const tokenProvider = async (user : userProps ) =>{
     if(!apiKey) throw new Error("No API KEY");
     if(!apiSecret) throw new Error("No API secret");
 
-    const client = new StreamClient(apiKey, apiSecret);
+    const streamClient = new StreamClient(apiKey, apiSecret);
 
     //expiration token after one hour
     const exp = Math.round(new Date().getTime() / 1000) + 60 * 60;
     const issued = Math.floor(Date.now() / 1000) - 60;
     
-    const token = client.createToken(user._id, exp, issued);
+    const token = streamClient.createToken(user._id, exp, issued);
 
     return token;
 }

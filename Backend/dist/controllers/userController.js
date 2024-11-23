@@ -1,7 +1,21 @@
-import User from '../models/User.js';
-import jwt from 'jsonwebtoken';
-import { hashPassword } from '../utils/hashPassword.js';
-import bcrypt from 'bcrypt';
+import User from "../models/User.js";
+import jwt from "jsonwebtoken";
+import { hashPassword } from "../utils/hashPassword.js";
+import bcrypt from "bcrypt";
+import dotenv from "dotenv";
+import RefreshToken from "../models/RefreshToken.js";
+dotenv.config();
+// Generate Access Token
+const generateAccessToken = (user) => {
+    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "15m",
+    });
+};
+// Generate Refresh Token
+const generateRefreshToken = async (user) => {
+    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "30d" });
+    return refreshToken;
+};
 export const createUser = async (req, res) => {
     try {
         const { username, email, password, imageUrl } = req.body;
@@ -22,14 +36,38 @@ export const createUser = async (req, res) => {
         else {
             newUser.imageUrl = req.file.filename;
         }
-        ;
         newUser.password = await hashPassword(password);
         const user = await newUser.save();
         if (!user) {
             return res.status(400).json({ message: "User not created" });
         }
-        const token = jwt.sign({ _id: newUser._id, username: newUser.username, password: newUser.password, imageUrl: newUser.imageUrl }, "Mohamed@123");
-        res.status(200).json({ token, user });
+        const accessToken = generateAccessToken({
+            _id: user._id.toString(),
+            username: user.username,
+            email: user.email,
+            imageUrl: user.imageUrl,
+        });
+        const refreshToken = await generateRefreshToken({
+            _id: user._id.toString(),
+            username: user.username,
+            email: user.email,
+            imageUrl: user.imageUrl,
+        });
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            sameSite: "none",
+            secure: Boolean(process.env.production),
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+        });
+        res.status(200).json({ accessToken, refreshToken, user });
+        // Create a new instance of the RefreshToken model
+        const newRefreshToken = new RefreshToken({
+            userId: user._id,
+            refreshToken: refreshToken,
+            expiration: "30d",
+        });
+        // Save the instance to the database
+        await newRefreshToken.save();
     }
     catch (error) {
         res.status(500).json({ message: error });
@@ -41,23 +79,54 @@ export const loginUser = async (req, res) => {
         // Find user by email
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: 'Invalid Email or Password' });
+            return res.status(400).json({ message: "Invalid Email or Password" });
         }
         // Compare passwords
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid Email or Password' });
+            return res.status(400).json({ message: "Invalid Email or Password" });
         }
-        // Generate JWT token
-        const token = jwt.sign({ _id: user._id, username: user.username, email: user.email, imageUrl: user.imageUrl }, 'Mohamed@123'
-        // { expiresIn: '1h' }
-        );
+        const accessToken = generateAccessToken({
+            _id: user._id.toString(),
+            username: user.username,
+            email: user.email,
+            imageUrl: user.imageUrl,
+        });
+        const refreshToken = await generateRefreshToken({
+            _id: user._id.toString(),
+            username: user.username,
+            email: user.email,
+            imageUrl: user.imageUrl,
+        });
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            sameSite: "none",
+            secure: Boolean(process.env.production),
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+        });
         // Send token in response
-        res.status(200).json({ token });
+        res.status(200).json({ accessToken, refreshToken, user });
+        const refreshTokenExistant = await RefreshToken.findOne({
+            userId: user._id,
+        });
+        if (!refreshTokenExistant) {
+            // Create a new instance of the RefreshToken model
+            new RefreshToken({
+                userId: user._id,
+                refreshToken: refreshToken,
+                expiration: "30d",
+            }).save();
+        }
+        else {
+            // Create a new instance of the RefreshToken model
+            await RefreshToken.findOneAndUpdate({
+                userId: user._id,
+            }, { refreshToken: refreshToken });
+        }
     }
     catch (error) {
-        console.error('Error in loginUser:', error);
-        res.status(500).json({ message: 'Server Error' });
+        console.error("Error in loginUser:", error);
+        res.status(500).json({ message: "Server Error" });
     }
 };
 export const udpateUser = async (req, res) => {
@@ -79,7 +148,6 @@ export const udpateUser = async (req, res) => {
         else {
             imageUrl = req.file.filename;
         }
-        ;
         const updatedUser = await User.findByIdAndUpdate(req.params.id, { username, email, password, imageUrl }, { new: true });
         if (!updatedUser) {
             return res.status(400).json({ message: "User not updated" });

@@ -12,18 +12,26 @@ const MeetingSetup = ({setIsSetupComplete}:{setIsSetupComplete : (value: boolean
         throw new Error("useCall must be used within StreamCall Component");
     }
 
+
     useEffect(() => {
+        // Toggle mic and camera during the setup phase only
         if (isMicCamToggledOn) {
-            call?.camera.disable();
-            call?.microphone.disable();
+            call.camera.disable();
+            call.microphone.disable();
         } else {
-            call?.camera.enable();
-            call?.microphone.enable();
+            call.camera.enable();
+            call.microphone.enable();
         }
-    }, [isMicCamToggledOn, call?.camera, call?.microphone]);
+
+        // Cleanup effect to reset the state when the component unmounts
+        return () => {
+            call.camera.enable();
+            call.microphone.enable();
+        };
+    }, [isMicCamToggledOn, call]);
 
     return (
-        <div className='w-full h-screen flex items-center justify-center text-white'>
+        <div className='w-full h-screen flex items-center justify-center gap-3 text-white'>
             <div className="block">
                 <h1 className="text-center font-bold fonst-6xl">Setup</h1>
                 <VideoPreview />

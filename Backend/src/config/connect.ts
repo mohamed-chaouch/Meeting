@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-mongoose.connect("mongodb://127.0.0.1:27017/Meeting")
+mongoose.connect(process.env.MongoDB_URL!)
     .then(()=>{
         console.log("Connected to MongoDB");
     })

@@ -1,163 +1,90 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import CardHome from "@/components/CardHome";
 import CardUpcoming from "@/components/CardUpcoming";
-import NewMeetingModal from "@/components/NewMeetingModal";
 import { cardHomeInformations } from "@/constants";
 import moment from "moment";
-import { Call, useStreamVideoClient } from "@stream-io/video-react-sdk";
-import axios from "../../../../utils/axios";
-import { useRouter } from "next/navigation";
-import { useToast } from "@/components/ui/use-toast";
+import { useNewMeetingRoom } from "@/hooks/useNewMeetingRoom";
+import { useHomeCard } from "@/hooks/useHomeCards";
+import MeetingModal from "@/components/MeetingModal";
 
 const Home = () => {
-  const { toast } = useToast();
-  const router = useRouter();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { router, meetingState, setMeetingState } = useHomeCard();
 
-  const [user, setUser] = useState({});
-  const token: any = localStorage.getItem("token");
-  const accessUser = JSON.parse(atob(token.split(".")[1]));
-  const handleUser = () => {
-    axios.get(`get-user/${accessUser._id}`).then((res) => {
-      console.log(res.data.user);
-      setUser(res.data.user);
-    });
-  };
-  const client = useStreamVideoClient();
-
-  const [meetInformation, setMeetInformation] = useState({
-    dateTime: new Date(),
-    description: "",
-    link: "",
-  });
-  const [callDetails, setCallDetails] = useState<Call>();
-
-  const createMeeting = async () => {
-    if (!meetInformation.dateTime) {
-      toast({
-        title: "Please select a date and time",
-      });
-      return;
-    }
-    if (!client || !user) return;
-    try {
-      const id = crypto.randomUUID();
-      const call = client.call("default", id);
-
-      if (!call) throw new Error("Failed to   create a call");
-
-      const startsAt =
-        meetInformation.dateTime.toISOString() ||
-        new Date(Date.now()).toISOString();
-      const description = meetInformation.description || "Instant meeting";
-
-      await call.getOrCreate({
-        data: {
-          starts_at: startsAt,
-          custom: {
-            description,
-          },
-        },
-      });
-
-      setCallDetails(call);
-
-      if (!meetInformation.description) {
-        router.push(`/meeting/${call.id}`);
-      }
-
-      toast({
-        title: "Meeting created successfully",
-      });
-    } catch (err) {
-      console.log("Error creating meeting:", err);
-      toast({
-        title: "Failed to create meeting",
-      });
-    }
-  };
-
-  useEffect(() => {
-    handleUser();
-  }, [client, accessUser._id]);
-
-  const handleCardClick = () => {
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event: any) => {
-      if (event.target.closest(".modal-content") === null) {
-        closeModal();
-      }
-    };
-
-    if (isModalOpen) {
-      document.addEventListener("click", handleClickOutside);
-    } else {
-      document.removeEventListener("click", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [isModalOpen]);
+  const { createMeeting } = useNewMeetingRoom();
 
   return (
     <div className="text-white">
-      <div className="bg-cover bg-no-repeat bg-[url('/images/hero-background.png')] p-12 rounded-lg">
-        <div className="bg-gray-50 bg-opacity-[0.1] text-white p-2 rounded-md inline-block">
-          Upcoming Meeting at : 12:30 AM
+      <div className="relative bg-gradient-to-r from-purple-900 via-purple-700 to-purple-500 p-12 rounded-lg shadow-2xl overflow-hidden">
+        {/* Decorative Blurred Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-10 left-10 w-32 h-32 bg-purple-400 rounded-full blur-3xl opacity-30"></div>
+          <div className="absolute bottom-10 right-10 w-40 h-40 bg-purple-600 rounded-full blur-2xl opacity-20"></div>
+          <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-indigo-500 rounded-full blur-[120px] opacity-10"></div>
         </div>
-        <div className="pt-24">
-          <div className="flex">
-            <h1 className="font-bold text-5xl">
-              {moment(new Date()).format("hh:mm")}
-            </h1>
-            <p className="font-semibold text-xl pl-3 pt-5 text-gray-400">
-              {moment(new Date()).format("A")}
+
+        {/* Content */}
+        <div className="relative z-10">
+          <div className="bg-purple-950 bg-opacity-50 text-white p-3 rounded-lg inline-block">
+            Upcoming Meeting at: 12:30 AM
+          </div>
+          <div className="pt-20">
+            <div className="flex items-baseline space-x-4">
+              <h1 className="text-6xl font-bold text-white">
+                {moment(new Date()).format("hh:mm")}
+              </h1>
+              <span className="text-2xl text-gray-200">
+                {moment(new Date()).format("A")}
+              </span>
+            </div>
+            <p className="text-gray-300 text-lg mt-4">
+              {moment(new Date()).format("dddd, D MMMM YYYY")}
             </p>
           </div>
-          <p className="font-semibold text-xl text-gray-400">
-            {moment(new Date()).format("dddd, D MMMM YYYY")}
-          </p>
         </div>
       </div>
-      <div className="flex flex-wrap justify-between pt-4">
+
+      <div className="pt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {cardHomeInformations.map((cardHome, index) => (
           <CardHome
             key={cardHome.title}
-            color={cardHome.color}
             srcIcon={cardHome.srcIcon}
             title={cardHome.title}
             description={cardHome.description}
-            handleClick={
-              cardHome.title === "New Meeting"
-                ? handleCardClick
-                : cardHome.handleClick
-            }
+            handleClick={() => {
+              if (cardHome.meetingState === "") {
+                router.push("/recordings");
+              } else {
+                setMeetingState(cardHome.meetingState);
+              }
+            }}
           />
         ))}
       </div>
-      <div className="flex px-3 pt-6 pb-2">
-        <p className="font-semibold flex-1">Today&apos;s Upcoming Meetings</p>
-        <p className="text-gray-300">See all</p>
+      <div className="mt-5 bg-gradient-to-b from-gray-200 to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl p-6 shadow-lg">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b pb-4 border-gray-300 dark:border-gray-700">
+          <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">
+            Today&apos;s Upcoming Meetings
+          </h2>
+          <button className="text-sm font-medium text-purple-600 hover:underline dark:text-purple-400">
+            See All
+          </button>
+        </div>
+
+        <CardUpcoming />
       </div>
-      <div className="flex flex-wrap gap-4">
-        <CardUpcoming />
-        <CardUpcoming />
-        <CardUpcoming />
-      </div>
-      {isModalOpen && (
-        <NewMeetingModal
-          closeModal={closeModal}
-          createMeeting={createMeeting}
+
+      {(meetingState !== undefined) && (
+        <MeetingModal
+          meetingState={meetingState}
+          isOpen={meetingState !== undefined}
+          onClose={()=> {
+            setMeetingState(undefined)
+          }}
+          title="Start an Instant Meeting"
+          BtnTitle="Start"
+          handleClick={createMeeting}
         />
       )}
     </div>

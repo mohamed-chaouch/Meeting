@@ -1,7 +1,6 @@
 "use client";
 
 import { Menu } from "lucide-react";
-import React, { useState } from "react";
 import {
   Sheet,
   SheetClose,
@@ -16,7 +15,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import Sidebar from "./Sidebar";
 import Image from "next/image";
 import { sidebarLinks } from "@/constants";
 import Link from "next/link";
@@ -32,11 +30,11 @@ const SidebarMobile = () => {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="ml-4 sm:ml-0 cursor-pointer p-2 w-[40px] h-[100%] rounded-[50%] hover:bg-[#17183B] flex sm:hidden">
+                <div className="cursor-pointer p-2 w-[40px] h-[100%] rounded-[50%] hover:bg-[#17183B] flex sm:hidden">
                   <Menu className="text-white hover:cursor-pointer sm:hidden" />
                 </div>
               </TooltipTrigger>
-              <TooltipContent className="bg-info border-0">
+              <TooltipContent className="text-white bg-black border-0">
                 <p>Menu</p>
               </TooltipContent>
             </Tooltip>
