@@ -16,7 +16,7 @@ const CardHome = ({
 }) => {
   return (
     <div
-      className="transform cursor-pointer hover:scale-110 transition duration-300 w-full rounded-lg p-4 bg-gradient-blue"
+      className="transform cursor-pointer hover:scale-[1.03] transition duration-300 w-full rounded-lg p-4 bg-gradient-blue"
       onClick={handleClick}
     >
       <div className="flex items-center space-x-4">

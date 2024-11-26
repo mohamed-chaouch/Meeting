@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Bypass middleware for image requests in the public folder
-  if (pathname.match(/\.(png|jpg|jpeg|gif|svg)$/)) {
+  if (pathname.match(/\.(png|jpg|jpeg|gif|svg)$/) || pathname.startsWith("/meeting/")) {
     return NextResponse.next();
   }
 
@@ -60,13 +60,11 @@ export async function middleware(request: NextRequest) {
       "/previous",
       "/recordings",
       "/personal-room",
-      "/meeting"
     ];
 
     // Check for protected dynamic paths like /metting/[id]
     if (
-      (protectedRoutes.includes(pathname) ||
-        pathname.startsWith("/meeting/")) &&
+      protectedRoutes.includes(pathname) &&
       !session?._id
     ) {
       return NextResponse.redirect(new URL("/", request.url));
@@ -74,8 +72,7 @@ export async function middleware(request: NextRequest) {
 
     // Handle invalid paths not in validPaths or matching /meeting/
     if (
-      !validPaths.includes(pathname) &&
-      !pathname.startsWith("/meeting/")
+      !validPaths.includes(pathname)
     ) {
       return NextResponse.redirect(
         session?._id ? new URL("/home", request.url) : new URL("/", request.url)

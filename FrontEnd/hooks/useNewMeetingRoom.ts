@@ -30,10 +30,10 @@ export const useNewMeetingRoom = () => {
     }
     if (!client || !user) return;
     try {
-      if(!meetInformation.dateTime){
+      if (!meetInformation.dateTime) {
         toast({
-          title: "Please select a data and time"
-        })
+          title: "Please select a data and time",
+        });
         return;
       }
       const id = crypto.randomUUID();
@@ -55,7 +55,7 @@ export const useNewMeetingRoom = () => {
         },
       });
 
-        (call);
+      setCallDetails(call);
 
       if (!meetInformation.description) {
         router.push(`/meeting/${call.id}`);
@@ -72,7 +72,12 @@ export const useNewMeetingRoom = () => {
     }
   };
 
+  const meetingLink = `${process.env.NEXT_PUBLIC_FRONT_URL}meeting/${callDetails?.id}`
+
   return {
+    meetInformation, setMeetInformation,
+    callDetails,
     createMeeting,
+    meetingLink
   };
 };

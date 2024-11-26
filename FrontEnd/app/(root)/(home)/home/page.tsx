@@ -1,17 +1,34 @@
 "use client";
 
 import CardHome from "@/components/CardHome";
-import CardUpcoming from "@/components/CardUpcoming";
+import CardUpcoming from "@/components/CallList";
 import { cardHomeInformations } from "@/constants";
 import moment from "moment";
 import { useNewMeetingRoom } from "@/hooks/useNewMeetingRoom";
 import { useHomeCard } from "@/hooks/useHomeCards";
 import MeetingModal from "@/components/MeetingModal";
+import { useToast } from "@/components/ui/use-toast";
+import CallList from "@/components/CallList";
+import { useGetCalls } from "@/hooks/useGetCalls";
 
 const Home = () => {
   const { router, meetingState, setMeetingState } = useHomeCard();
 
-  const { createMeeting } = useNewMeetingRoom();
+  const {
+    meetInformation,
+    setMeetInformation,
+    callDetails,
+    createMeeting,
+    meetingLink,
+  } = useNewMeetingRoom();
+
+  const {
+    soonestTime
+  } = useGetCalls();
+
+  console.log(soonestTime," : soonestTime");
+
+  const { toast } = useToast();
 
   return (
     <div className="text-white">
@@ -26,7 +43,7 @@ const Home = () => {
         {/* Content */}
         <div className="relative z-10">
           <div className="bg-purple-950 bg-opacity-50 text-white p-3 rounded-lg inline-block">
-            Upcoming Meeting at: 12:30 AM
+            {`Upcoming Meeting at: ${moment(soonestTime).format("DD/MM/YYYY HH:mm:ss") || ""}`}
           </div>
           <div className="pt-20">
             <div className="flex items-baseline space-x-4">
@@ -67,26 +84,66 @@ const Home = () => {
           <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">
             Today&apos;s Upcoming Meetings
           </h2>
-          <button className="text-sm font-medium text-purple-600 hover:underline dark:text-purple-400">
-            See All
-          </button>
         </div>
 
-        <CardUpcoming />
+        <CallList type="upcomingToday" />
       </div>
 
-      {(meetingState !== undefined) && (
+      {!callDetails ? (
         <MeetingModal
-          meetingState={meetingState}
-          isOpen={meetingState !== undefined}
-          onClose={()=> {
-            setMeetingState(undefined)
+          isOpen={meetingState === "isScheduleMeeting"}
+          onClose={() => {
+            setMeetingState(undefined);
           }}
-          title="Start an Instant Meeting"
-          BtnTitle="Start"
+          title="Create Meeting"
           handleClick={createMeeting}
+          meetInformation={meetInformation}
+          setMeetInformation={setMeetInformation}
+          isScheduleMeeting={true}
+        />
+      ) : (
+        <MeetingModal
+          isOpen={meetingState === "isScheduleMeeting"}
+          onClose={() => {
+            setMeetingState(undefined);
+          }}
+          title="Meeting Created"
+          BtnTitle="Copy Meeting Link"
+          handleClick={() => {
+            navigator.clipboard.writeText(meetingLink);
+            toast({
+              title: "Link copied",
+            });
+          }}
+          image="/icons/checked.svg"
+          BtnIcon="/icons/copy.svg"
         />
       )}
+
+      <MeetingModal
+        isOpen={meetingState === "isInstantMeeting"}
+        onClose={() => {
+          setMeetingState(undefined);
+        }}
+        title="Start an Instant Meeting"
+        BtnTitle="Start"
+        handleClick={createMeeting}
+      />
+
+      <MeetingModal
+        isOpen={meetingState === "isJoiningMeeting"}
+        onClose={() => {
+          setMeetingState(undefined);
+        }}
+        title="Type the link here"
+        BtnTitle="Join Meeting"
+        handleClick={()=>{
+          router.push(meetInformation.link)
+        }}
+        meetInformation={meetInformation}
+        setMeetInformation={setMeetInformation}
+        isJoiningMeeting={true}
+      />
     </div>
   );
 };

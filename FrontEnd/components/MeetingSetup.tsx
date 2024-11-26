@@ -24,10 +24,10 @@ const MeetingSetup = ({setIsSetupComplete}:{setIsSetupComplete : (value: boolean
         }
 
         // Cleanup effect to reset the state when the component unmounts
-        return () => {
-            call.camera.enable();
-            call.microphone.enable();
-        };
+        // return () => {
+        //     call.camera.enable();
+        //     call.microphone.enable();
+        // };
     }, [isMicCamToggledOn, call]);
 
     return (
@@ -43,6 +43,7 @@ const MeetingSetup = ({setIsSetupComplete}:{setIsSetupComplete : (value: boolean
 
                 <div className='flex justify-center'>
                     <button className="bg-green-500 py-2 px-4 rounded mt-3" onClick={()=>{
+                        setIsMicCamToggledOn(false);
                         call.join();
                         setIsSetupComplete(true)
                     }}>

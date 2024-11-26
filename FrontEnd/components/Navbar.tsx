@@ -33,9 +33,11 @@ const Navbar = () => {
 
   return (
     <div className="bg-dark-1 text-white p-3 flex justify-between items-center">
-      <div className="flex items-center">
-        <Image src="/icons/logo.svg" alt="Yoom" width={24} height={24} />
-        <p className="pl-2 font-bold">MEETING</p>
+      <div className="flex items-center cursor-pointer" onClick={()=>{
+        router.push("/home")
+      }}>
+        <Image src="/icons/logo.svg" alt="Yoom" width={36} height={36} />
+        <p className="pl-2 font-bold hidden sm:block">MEETING</p>
       </div>
       <div className="flex items-center">
         {user && user.imageUrl && (

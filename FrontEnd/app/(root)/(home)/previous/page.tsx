@@ -1,9 +1,13 @@
-import React from 'react'
+import CallList from "@/components/CallList";
+import React from "react";
 
 const Previous = () => {
   return (
-    <div>Previous</div>
-  )
-}
+    <div>
+      <h1 className="text-3xl text-white font-bold">Previous Meetings</h1>
+      <CallList type="previous" />
+    </div>
+  );
+};
 
-export default Previous
+export default Previous;

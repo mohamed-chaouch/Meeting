@@ -2,9 +2,11 @@
 
 import { cn } from "@/lib/utils";
 import {
+  Call,
   CallControls,
   CallingState,
   CallParticipantsList,
+  CallState,
   CallStatsButton,
   PaginatedGridLayout,
   SpeakerLayout,
@@ -19,14 +21,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LayoutList, Users } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import EndCallButton from "./EndCallButton";
 import Loader from "./Loader";
 
 type CallLayoutType = "grid" | "speaker-left" | "speaker-right";
 
-const MeetingRoom = () => {
-  //query comming from the url 
+const MeetingRoom = ({ call }: { call: Call }) => {
+  const router = useRouter();
+  //query comming from the url
   //if it contain a query with the name "personal" that mean the person connected is the owner of the room
   const searchParams = useSearchParams();
   const isPersonalRoom = !!searchParams.get("personal");
@@ -50,6 +53,8 @@ const MeetingRoom = () => {
     }
   };
 
+  console.log(call.state, " call.state");
+
   return (
     <section className="relative h-screen w-full overflow-hidden pt-4 text-white">
       <div className="relative flex size-full items-center justify-center">
@@ -57,15 +62,32 @@ const MeetingRoom = () => {
           <CallLayout />
         </div>
         <div
-          className={cn("h-[calc(100vh-86px)] ml-2 bg-dark-1 p-4 rounded-[20px]", {
-            hidden: !showParticipants,
-            "show-block": showParticipants,
-          })}
+          className={cn(
+            "h-[calc(100vh-86px)] ml-2 bg-dark-1 p-4 rounded-[20px]",
+            {
+              hidden: !showParticipants,
+              "show-block": showParticipants,
+            }
+          )}
         >
           <CallParticipantsList onClose={() => setShowParticipants(false)} />
         </div>
         <div className="fixed bottom-0 flex w-full items-center justify-center gap-3 flex-wrap">
-          <CallControls />
+          <CallControls
+                onLeave={async () => {
+                  try {
+                    // Check if the call state is not already left
+                    if (call?.state === ("joined" as any)) {
+                      await call.camera.disable();
+                      await call.microphone.disable();
+                      await call.leave(); // Leave the call only if it's in the "joined" state
+                    }
+                    router.push("/home"); // Redirect after leaving the call
+                  } catch (error) {
+                    console.error("Error leaving the call:", error);
+                  }
+                }}
+          />
 
           <DropdownMenu>
             <div className="flex items-center">
