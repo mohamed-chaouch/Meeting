@@ -48,7 +48,7 @@ export const createUser = async (req: Request, res: Response) => {
     // }
     if (!req.file) {
       // return res.status(400).json({ message: "Image is required" });
-      newUser.imageUrl = "default_user.jpg";
+      newUser.imageUrl = "default_avatar.png";
     } else {
       newUser.imageUrl = req.file.filename;
     }
