@@ -37,6 +37,7 @@ app.use((err: any, req: any, res: any, next: any) => {
 });
 
 import "./config/connect.js";
+
 import { googleAuth } from "./controllers/googleAuthController.js";
 
 app.use("/", userRouter);

@@ -60,7 +60,6 @@ const MeetingRoom = ({ call }: { call: Call }) => {
     }
   };
 
-
   return (
     <section className="relative h-screen w-full overflow-hidden pt-4 text-white">
 <div
@@ -142,6 +141,7 @@ const MeetingRoom = ({ call }: { call: Call }) => {
           <Users size={20} />
         </button>
         {!isPersonalRoom && <EndCallButton />}
+
       </div>
     </section>
   );
