@@ -41,12 +41,12 @@ const Navbar = () => {
       </div>
       <div className="flex items-center">
         {user && user.imageUrl && (
-          <img
-            src={user.imageUrl.startsWith("http") ? user.imageUrl : `${process.env.NEXT_PUBLIC_BASE_URL}${user.imageUrl}`}
+          <Image
+            src={user.imageUrl.startsWith("https") ? user.imageUrl : `${process.env.NEXT_PUBLIC_BASE_URL}${user.imageUrl}`}
             alt="avatar"
-            className="rounded-full sm:mr-4"
             width={36}
             height={36}
+            className="rounded-full sm:mr-4"
           />
         )}
 
