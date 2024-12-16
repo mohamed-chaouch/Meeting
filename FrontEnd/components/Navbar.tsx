@@ -6,7 +6,12 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import SidebarMobile from "./SidebarMobile";
 import useUserInfo from "@/hooks/useUserInfo";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 import { useRouter } from "next/navigation";
 import { useCookies } from "react-cookie";
 import api from "../utils/axios";
@@ -33,20 +38,27 @@ const Navbar = () => {
 
   return (
     <div className="bg-dark-1 text-white p-3 flex justify-between items-center">
-      <div className="flex items-center cursor-pointer" onClick={()=>{
-        router.push("/home")
-      }}>
-        <Image src="/icons/logo.svg" alt="Yoom" width={36} height={36} />
-        <p className="pl-2 font-bold hidden sm:block">MEETING</p>
+      <div
+        className="flex items-center cursor-pointer"
+        onClick={() => {
+          router.push("/home");
+        }}
+      >
+        <img src="/icons/logo.svg" alt="Meeting" className="m-0 w-8 h-8" />
+        <p className="pl-2 text-lg font-bold hidden sm:block">MEETING</p>
       </div>
       <div className="flex items-center">
         {user && user.imageUrl && (
           <Image
-            src={user.imageUrl.startsWith("https") ? user.imageUrl : `${process.env.NEXT_PUBLIC_BASE_URL}${user.imageUrl}`}
+            src={
+              user.imageUrl.startsWith("https")
+                ? user.imageUrl
+                : `${process.env.NEXT_PUBLIC_BASE_URL}${user.imageUrl}`
+            }
             alt="avatar"
             width={36}
             height={36}
-            className="rounded-full sm:mr-4"
+            className="rounded-full mr-2 sm:mr-4"
           />
         )}
 

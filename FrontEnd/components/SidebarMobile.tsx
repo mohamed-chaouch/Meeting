@@ -45,8 +45,8 @@ const SidebarMobile = () => {
           className="p-0 bg-dark-1 w-[264px] overflow-y-auto size-[264px] h-screen"
         >
           <div className="pl-4 pt-5 flex flex-row items-center bg-dark-1 mb-10">
-            <Image src="/icons/logo.svg" alt="Yoom" width={24} height={24} />
-            <p className="pl-2 font-bold text-white">MEETING</p>
+            <img src="/icons/logo.svg" alt="Meeting" className="m-0 w-8 h-8"/>
+            <p className="pl-1 font-bold text-white">MEETING</p>
           </div>
           {sidebarLinks.map((sidebarLink) => (
             <SheetClose key={sidebarLink.label} asChild>

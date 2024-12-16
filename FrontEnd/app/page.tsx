@@ -13,8 +13,8 @@ const LandingPage = () => {
       <header className="hero-section bg-gradient-to-r from-purple-500 to-[#ff66ff] text-white">
         <div className="flex items-center justify-between p-6 max-w-screen-xl mx-auto">
           <div className="flex items-center">
-            <Image src="/icons/logo.svg" alt="Yoom" width={48} height={48} />
-            <p className="pl-3 font-bold text-lg">MEETING</p>
+            <img src="/icons/logo.svg" alt="Meeting" className="m-0 w-10 h-10"/>
+            <p className="pl-1 font-bold text-lg ml-0">MEETING</p>
           </div>
 
           <Button

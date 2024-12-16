@@ -60,7 +60,9 @@ const SignUp = () => {
       // Perform Google OAuth API request to get access tokens
       const fetchGoogleData = async () => {
         try {
-          const response = await api.get(`api/auth/google?code=${code}&flow=${"sign-up"}`);
+          const response = await api.get(
+            `api/auth/google?code=${code}&flow=${"sign-up"}`
+          );
 
           const { access_token, refresh_token } = response.data;
 
@@ -68,7 +70,8 @@ const SignUp = () => {
           setCookie("refreshToken", refresh_token);
 
           // Get the state parameter for redirection
-          const targetUrl = state || sessionStorage.getItem("redirectAfterLogin") || "/home"; // Default to "/home" if no target URL exists
+          const targetUrl =
+            state || sessionStorage.getItem("redirectAfterLogin") || "/home"; // Default to "/home" if no target URL exists
 
           // Clear sessionStorage
           sessionStorage.removeItem("redirectAfterLogin");
@@ -121,12 +124,7 @@ const SignUp = () => {
           </div>
         </div>
         <div className="flex items-center justify-center  mb-1 sm:mb-2">
-          <Image
-            src="/icons/logo.svg"
-            alt="video conference logo"
-            width={48}
-            height={55}
-          />
+          <img src="/icons/logo.svg" alt="Meeting" className="m-0 w-10 h-10" />
           <p className="pl-1 text-white text-lg">Meeting</p>
         </div>
         <div>
@@ -136,7 +134,10 @@ const SignUp = () => {
           </p>
         </div>
         <div className="mb-0 sm:mb-1">
-          <button onClick={() => signUpGoogle()} className="text-white text-4xl">
+          <button
+            onClick={() => signUpGoogle()}
+            className="text-white text-4xl"
+          >
             <Image
               src="/icons/google.svg"
               alt="Google Icon"
