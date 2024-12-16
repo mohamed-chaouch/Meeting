@@ -20,7 +20,7 @@ const Navbar = () => {
   const { user, errorResponse, accessToken } = useUserInfo();
 
   const router = useRouter();
-  const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
+  const [cookies, , removeCookie] = useCookies(["accessToken"]);
   const logOut = async () => {
     await api.get("/logout", {
       headers: {
@@ -48,12 +48,12 @@ const Navbar = () => {
         <p className="pl-2 text-lg font-bold hidden sm:block">MEETING</p>
       </div>
       <div className="flex items-center">
-        {user && user.imageUrl && (
+        {user && user?.imageUrl && (
           <Image
             src={
               user.imageUrl.startsWith("https")
-                ? user.imageUrl
-                : `${process.env.NEXT_PUBLIC_BASE_URL}${user.imageUrl}`
+                ? user?.imageUrl
+                : `${process.env.NEXT_PUBLIC_BASE_URL}${user?.imageUrl}`
             }
             alt="avatar"
             width={36}
