@@ -100,7 +100,7 @@ const SignIn = () => {
 
   return (
     <div className="min-h-screen flex justify-center items-center w-full bg-[url('/images/flou.jpg')] bg-cover bg-opacity-[0.2]">
-      <div className="bg-dark-1 w-full max-w-lg px-8 pt-0 pb-5 rounded-2xl shadow-md text-center absolute">
+      <div className="bg-dark-1 w-full max-w-lg px-8 pt-0 pb-5 rounded-2xl shadow-md text-center absolute max-h-[90vh] overflow-auto">
         <div className="flex items-center justify-between">
           <div className="relative top-0 left-0 sm:left-2 flex justify-end border-1 border-black">
             <Image
