@@ -23,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-dark-2`}>
+      <body className={`${inter.className} bg-dark-2 scrollbar`}>
         <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_CLIENT_ID!}>
           {children}
           <Toaster />

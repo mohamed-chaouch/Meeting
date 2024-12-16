@@ -1,13 +1,14 @@
-import type { Config } from "tailwindcss"
+import type { Config } from "tailwindcss";
+import { PluginAPI } from "tailwindcss/types/config";
 
 const config = {
   darkMode: ["class"],
   content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
-	],
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
   prefix: "",
   theme: {
     container: {
@@ -19,13 +20,18 @@ const config = {
     },
     extend: {
       colors: {
-        dark:{
+        scrollbar: {
+          DEFAULT: "hsl(var(--scrollbar))",
+          thumb: "hsl(var(--scrollbar-thumb))",
+          track: "hsl(var(--scrollbar-track))",
+        },
+        dark: {
           1: "#7B1FA2",
           2: "#9B59B6",
           3: "#8E24AA",
         },
-        blue:{
-          1: "#0E78F9"
+        blue: {
+          1: "#0E78F9",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -82,7 +88,25 @@ const config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
-} satisfies Config
+  plugins: [
+    require("tailwindcss-animate"), // Custom scrollbar styles
+    function ({ addComponents }: PluginAPI) {
+      addComponents({
+        ".scrollbar": {
+          "&::-webkit-scrollbar": {
+            width: "8px",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "var(--scrollbar-thumb)", // thumb color
+            borderRadius: "10px",
+          },
+          "&::-webkit-scrollbar-track": {
+            backgroundColor: "var(--scrollbar-track)", // track color
+          },
+        },
+      });
+    },
+  ],
+} satisfies Config;
 
-export default config
+export default config;

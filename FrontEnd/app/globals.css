@@ -2,6 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Light mode default scrollbar colors */
+:root {
+  --scrollbar: #444; /* Scrollbar color */
+  --scrollbar-thumb: rgb(255, 125, 255); /* Scrollbar thumb color */
+  --scrollbar-track: #000000; /* Scrollbar track color */
+}
+
+/* Customize the scrollbar */
+.scroll-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1); /* Light background */
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.5); /* Darker thumb */
+  border-radius: 10px;
+  border: 2px solid transparent; /* Padding around scrollbar */
+  background-clip: content-box;
+}
+
+/* Scrollbar styling for Firefox */
+.scroll-container {
+  scrollbar-width: thin; /* Narrow scrollbar */
+  scrollbar-color: rgba(0, 0, 0, 0.5) rgba(255, 255, 255, 0.1); /* Thumb color, track color */
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
