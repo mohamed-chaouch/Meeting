@@ -5,10 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "postbuild": "copyfiles -u 2 ./src/uploads/**/* ./dist/uploads",
+    "build": "tsc --skipLibCheck",
     "predev": "npm run build",
-    "dev": "concurrently \"npx tsc -w\" \"nodemon dist/index.js\""
+    "dev": "node dist/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -39,5 +38,11 @@
     "@types/morgan": "^1.9.9",
     "cpx": "^1.2.1",
     "ts-node": "^10.9.2"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "engines": {
+    "node": "18.x"
   }
 }

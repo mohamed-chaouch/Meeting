@@ -35,6 +35,7 @@ app.get("/logout", verifyToken, handleLogout);
 // Serve static files
 const uploadsPath = path.join(__dirname, process.env.UPLOADS_PATH);
 app.use("/", express.static(uploadsPath));
-app.listen(process.env.PORT, () => {
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
     console.log(`Server is running on port ${process.env.PORT}`);
 });
